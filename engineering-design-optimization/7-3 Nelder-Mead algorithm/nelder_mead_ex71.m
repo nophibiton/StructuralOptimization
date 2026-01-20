@@ -56,3 +56,39 @@ ylim([-1,3]);
 exportgraphics(gcf,'figure.pdf','ContentType','vector');
 
 %%%
+
+figure;
+set(gcf, 'units','inches','position',[1,1,3.5,3.5]);
+
+contour(X1,X2,Z,15); hold on;
+scatter(xstar(1),xstar(2),Marker="pentagram", ...
+        Color='r',MarkerFaceColor='r',MarkerEdgeColor='r'); hold on;
+
+V = hist(1).x;
+h = patch('Faces',[1 2 3], ...
+      'Vertices',V, ...
+      'FaceColor','none', ...
+      'EdgeColor','r', ...
+      'EdgeAlpha',0.2, ...
+      'LineWidth',1.5);
+
+for k = 1:length(hist)
+
+    V = hist(k).x;
+    set(h,'Vertices',V);
+
+    title(sprintf('Step %d', k));
+
+    drawnow;
+
+    frame = getframe(gcf);
+    img = frame2im(frame);
+    [A,map] = rgb2ind(img,256);
+
+    if k == 1
+        imwrite(A,map,'contour.gif','gif','LoopCount',inf,'DelayTime',0.5);
+    else
+        imwrite(A,map,'contour.gif','gif','WriteMode','append','DelayTime',0.5);
+    end
+end
+
