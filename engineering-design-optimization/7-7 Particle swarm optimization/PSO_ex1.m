@@ -8,25 +8,26 @@ clc, clear; format compact; format longG;
 % 
 
 % define PSO parameters
-ub = [3,3];
-lb = [-3,-3];
-n_particle = 40;
-max_iter = 1000;
-options.alfa = [0.8,1.2];
-options.beta_max = 2;
+ub                = [ 3, 3];
+lb                = [-3,-3];
+n_particle        = 40;
+max_iter          = 1000;
+options.alfa      = [0.8,1.2];
+options.beta_max  = 2;
 options.gamma_max = 2;
-options.max_vel = 0.8*min(abs([ub, lb]) );
+options.max_vel   = 0.8*min(abs([ub, lb]) );
 
 % define parameters of objective function and its derivative
-params = {};
+params      = {};
 func.params = {};
-func.fobj = @bean;
+func.fobj   = @bean;
 % func.fcon
 
 [xbest, fbest, hist] = PSO(n_particle, max_iter,lb,ub, func, options)
 
 
-%%%Plot
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Plot
 x1 = linspace(-2.5,2.5);
 x2 = linspace(-1,3);
 [X1,X2] = meshgrid(x1,x2);
@@ -67,4 +68,55 @@ end
 
 exportgraphics(gcf,'figure.pdf','ContentType','vector');
 
-%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Animtation
+
+set(0,'defaultAxesFontSize',12)
+set(0,'defaultTextFontName','Cambria Math')
+set(0,'defaultAxesFontName','Cambria Math')
+
+figure;
+set(gcf,'units','inches','position',[1,1,2.5,2.5],'Color','w');
+scale = 1;
+
+% plot object contour
+contour(X1,X2,Z); hold on;
+
+% plot best solution
+xbest_pos = scatter(xbest(1),xbest(2),Marker="pentagram", ...
+    Color='r',MarkerFaceColor='r',MarkerEdgeColor='r'); hold on
+
+
+% plot particles
+particles_pos = scatter(NaN,NaN, ...
+    Marker="o",Color='r',MarkerFaceColor='g',MarkerEdgeColor='g'); hold on
+
+xlabel('x_1'); ylabel('x_2');
+ 
+xlim([-2.5,2.5]);
+ylim([-1,3]);
+
+uistack([xbest_pos],'top');
+
+for k = [1:20,20:10:500, 500:100:1000]
+
+    particles_pos.XData = hist(k).pbest(:,1);
+    particles_pos.YData = hist(k).pbest(:,2);
+
+    title(strcat('Iteration = ', num2str(k)))
+
+    drawnow;
+
+    frame    = getframe(gcf);
+    img      = frame2im(frame);
+    imgSmall = imresize(img, scale, 'nearest');   % downsample
+    img      = imresize(imgSmall, size(img(:,:,1)), 'nearest');  % upsample
+    [A,map] = rgb2ind(img,256);
+
+    if k == 1
+        imwrite(A,map,'PSO_example.gif','gif','LoopCount',inf,'DelayTime',0.1);
+    else
+        imwrite(A,map,'PSO_example.gif','gif','WriteMode','append','DelayTime',0.1);
+    end
+
+end
