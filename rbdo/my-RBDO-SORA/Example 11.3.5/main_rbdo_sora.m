@@ -13,15 +13,13 @@
 %
 clc,clear; format compact; format shortG;
 
-options = optimoptions('fmincon','display','none','algorithm','sqp');
-
-targetbeta = 4.0;
-
+% define objective function parameters
 objparams   = struct;
 
-lsffunc   = @g_fun;
-
-lsfparams = struct;
+% define constraint function parameters
+lsffunc    = @g_fun;
+lsfparams  = struct;
+targetbeta = 4.0;
 
 % define probability data
 probdata       = struct;
@@ -29,6 +27,9 @@ probdata.Xdist = {    'normal',     'normal',  'normal'};
 probdata.Xmu   = [          40,           50,      1000];
 probdata.Xstd  = [           5,           2.5,      200];
 probdata.R     = eye(3);
+
+% define optimization options
+options = optimoptions('fmincon','display','none','algorithm','sqp');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get distribution parameters
